@@ -1,3 +1,6 @@
+# Binaries for this project
+tfe-cli-*
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
