@@ -1,18 +1,3 @@
-/*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
@@ -31,7 +16,7 @@ var l string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "tfe",
+	Use:   "tfe-cli",
 	Short: "Manage TFE from the command line.",
 	Long:  `Manage TFE from the command line.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -58,7 +43,11 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&l, "log", "l", "", "log level (debug, info, warn, error, fatal, panic)")
+	rootCmd.PersistentFlags().StringP("organization", "o", "", "terraform organization")
+	rootCmd.PersistentFlags().StringP("token", "t", "", "terraform token")
 
+	// TFE_TOKEN
+	// TFE_ORG
 }
 
 // SetUpLogs sets the log level.
