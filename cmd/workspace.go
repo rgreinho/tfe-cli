@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -19,19 +18,19 @@ var workspaceCmd = &cobra.Command{
 }
 
 // createCmd represents the create command
-var createCmd = &cobra.Command{
+var workspaceCreateCmd = &cobra.Command{
 	Use:   "create [WORKSPACE]",
 	Short: "Create a TFE workspace",
 	Long:  `Create a TFE workspace.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		// Get organization.
-		organization, err := getOrganization(cmd)
+		// Setup the command.
+		organization, client, err := setup(cmd)
 		if err != nil {
-			log.Fatalf("No organization specified.")
+			log.Fatalf("Cannot execute the command: %s.", err)
 		}
 
-		// Get create command options.
+		// Read the flags.
 		name := args[0]
 		autoapply, _ := cmd.Flags().GetBool("autoapply")
 		filetriggers, _ := cmd.Flags().GetBool("filetriggers")
@@ -40,12 +39,6 @@ var createCmd = &cobra.Command{
 		workingdirectory, _ := cmd.Flags().GetString("workingdirectory")
 		vcsrepository, _ := cmd.Flags().GetString("vcsrepository")
 		splitVCS := strings.Split(vcsrepository, ":")
-
-		// Create the TFE client.
-		client, err := newClient(cmd)
-		if err != nil {
-			log.Fatalf("Cannot create TFE client: %s.", err)
-		}
 
 		// Check whether the workspace exists.
 		w, err := readWorkspace(client, organization, name)
@@ -108,21 +101,15 @@ var createCmd = &cobra.Command{
 	},
 }
 
-var listCmd = &cobra.Command{
+var workspaceListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List TFE workspaces",
 	Long:  `List TFE workspaces.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Get organization.
-		organization, err := getOrganization(cmd)
+		// Setup the command.
+		organization, client, err := setup(cmd)
 		if err != nil {
-			log.Fatalf("No organization specified.")
-		}
-
-		// Create the TFE client.
-		client, err := newClient(cmd)
-		if err != nil {
-			log.Fatalf("Cannot create TFE client: %s.", err)
+			log.Fatalf("Cannot execute the command: %s.", err)
 		}
 
 		// List workspaces.
@@ -140,54 +127,17 @@ var listCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(workspaceCmd)
-	workspaceCmd.AddCommand(createCmd)
-	workspaceCmd.AddCommand(listCmd)
+	workspaceCmd.AddCommand(workspaceCreateCmd)
+	workspaceCmd.AddCommand(workspaceListCmd)
 
-	createCmd.Flags().Bool("autoapply", false, "Apply changes automatically")
-	createCmd.Flags().Bool("filetriggers", false, "Filter runs based on the changed files in a VCS push")
-	createCmd.Flags().String("terraformversion", "", "Specify the Terraform version")
-	createCmd.Flags().String("workingdirectory", "", "Specify a relative path that Terraform will execute within")
+	workspaceCreateCmd.Flags().Bool("autoapply", false, "Apply changes automatically")
+	workspaceCreateCmd.Flags().Bool("filetriggers", false, "Filter runs based on the changed files in a VCS push")
+	workspaceCreateCmd.Flags().String("terraformversion", "", "Specify the Terraform version")
+	workspaceCreateCmd.Flags().String("workingdirectory", "", "Specify a relative path that Terraform will execute within")
 	// colon sperated values: <OAuthTokenID>:<repository>:<branch>
 	// example: ot-8Xc1NTYpjIQZIwIh:shipstation/mercury-appstack:master
-	createCmd.Flags().String("vcsrepository", "", "Specify a workspace's VCS repository")
-	createCmd.Flags().BoolP("force", "f", false, "Update workspace if it exists")
-}
-
-func newClient(cmd *cobra.Command) (*tfe.Client, error) {
-	// Get token.
-	token, _ := cmd.Flags().GetString("token")
-	if token == "" {
-		// Read the environment variable as a fallback.
-		token = os.Getenv("TFE_TOKEN")
-	}
-	if token == "" {
-		return nil, fmt.Errorf("no token specified")
-	}
-
-	// Prepare TFE config.
-	config := &tfe.Config{
-		Token: token,
-	}
-
-	// Create TFE client.
-	client, err := tfe.NewClient(config)
-	if err != nil {
-		return nil, err
-	}
-	return client, err
-}
-
-func getOrganization(cmd *cobra.Command) (string, error) {
-	// Get organization from CLI flag.
-	organization, _ := cmd.Flags().GetString("organization")
-	if organization == "" {
-		// Read the environment variable as a fallback.
-		organization = os.Getenv("TFE_ORG")
-	}
-	if organization == "" {
-		return "", fmt.Errorf("no organization specified")
-	}
-	return organization, nil
+	workspaceCreateCmd.Flags().String("vcsrepository", "", "Specify a workspace's VCS repository")
+	workspaceCreateCmd.Flags().BoolP("force", "f", false, "Update workspace if it exists")
 }
 
 func readWorkspace(client *tfe.Client, organization string, workspace string) (*tfe.Workspace, error) {
