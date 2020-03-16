@@ -44,19 +44,19 @@ Manage variables for a workspace.
 
 List exisitng variables for a specific workspace:
 
-Create a new variable into a specific workpsace:
+Create a new variable into a specific workspace:
 
 ```bash
-tfe-cli variable variable create exisiting-workspace --var akey=a_value
+tfe-cli variable create exisiting-workspace --var akey=a_value
 ```
 
 Update an existing variable in a specific workspace:
 
 ```bash
-tfe-cli variable variable create exisiting-workspace -f --var akey=a_nother_value
+tfe-cli variable create exisiting-workspace -f --var akey=a_nother_value
 ```
 
-When cresting/updating variables, several of them of can be specified at the same time:
+When creating/updating variables, several of them of can be specified at the same time:
 ```bash
 tfe-cli variable create exisiting-workspace \
   --var akey=a_value \
