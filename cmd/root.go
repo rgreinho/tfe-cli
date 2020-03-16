@@ -45,9 +45,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&l, "log", "l", "", "log level (debug, info, warn, error, fatal, panic)")
 	rootCmd.PersistentFlags().StringP("organization", "o", "", "terraform organization")
 	rootCmd.PersistentFlags().StringP("token", "t", "", "terraform token")
-
-	// TFE_TOKEN
-	// TFE_ORG
 }
 
 // SetUpLogs sets the log level.
