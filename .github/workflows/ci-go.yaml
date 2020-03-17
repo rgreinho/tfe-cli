@@ -21,11 +21,11 @@ jobs:
         with:
           go-version: "1.14.x"
       - name: Install formatter
-        run: |
-          go get -u golang.org/x/tools/cmd/goimports
-          export PATH=${PATH}:`go env GOPATH`/bin
+        run: go get -u golang.org/x/tools/cmd/goimports
       - name: Run formatter
-        run: test -z "$(goimports -l -e .)"
+        run: |
+          export PATH=${PATH}:`go env GOPATH`/bin
+          test -z "$(goimports -l -e .)"
 
   lint:
     runs-on: ubuntu-latest
