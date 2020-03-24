@@ -53,13 +53,14 @@ tfe-cli variable create exisiting-workspace --var akey=a_value
 Update an existing variable in a specific workspace:
 
 ```bash
-tfe-cli variable create exisiting-workspace -f --var akey=a_nother_value
+tfe-cli variable create my-exisiting-workspace -f --var akey=another_value
 ```
 
 When creating/updating variables, several of them of can be specified at the same time:
 ```bash
-tfe-cli variable create exisiting-workspace \
+tfe-cli variable create my-exisiting-workspace \
   --var akey=a_value \
-  --var bkey=b_value \
-  --hcl-var hclkey=hcl_value
+  --svar bkey=b_secure_value \
+  --hvar hclkey=hcl_value \
+  --var-file stage.tfvars \
 ```
