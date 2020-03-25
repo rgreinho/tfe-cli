@@ -7,7 +7,7 @@ LATEST_TAG=$(git ls-remote --tags --refs --sort="v:refname" git://github.com/${R
 VERSION=${VERSION:-$LATEST_TAG}
 PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
 OPT_DIR="/usr/local/opt/${REPO}/${VERSION}"
-BINARY="keeparelease-${VERSION}-${PLATFORM}-amd64"
+BINARY="tfe-client-${VERSION}-${PLATFORM}-amd64"
 export GITHUB_OAUTH_TOKEN=${GITHUB_TOKEN}
 
 # Download the binaries.
@@ -19,7 +19,7 @@ fetch --repo="https://github.com/${REPO}" \
 
 # Create the simlink
 SRC="${OPT_DIR}/${BINARY}"
-TARGET="/usr/local/bin/keeparelease"
+TARGET="/usr/local/bin/tfe-client"
 echo "Updating permissions..."
 chmod +x "${SRC}"
 echo "Linking ${SRC} to ${TARGET}..."
