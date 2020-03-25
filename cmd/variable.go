@@ -3,9 +3,12 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"reflect"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/hcl"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -27,11 +30,12 @@ var variableCreateCmd = &cobra.Command{
 		name := args[0]
 		vars, _ := cmd.Flags().GetStringArray("var")
 		svars, _ := cmd.Flags().GetStringArray("svar")
-		HCLvars, _ := cmd.Flags().GetStringArray("hcl-var")
-		sHCLVars, _ := cmd.Flags().GetStringArray("shcl-var")
-		EnvVars, _ := cmd.Flags().GetStringArray("svar")
-		sEnvVars, _ := cmd.Flags().GetStringArray("svar")
+		HCLvars, _ := cmd.Flags().GetStringArray("hvar")
+		sHCLVars, _ := cmd.Flags().GetStringArray("shvar")
+		EnvVars, _ := cmd.Flags().GetStringArray("evar")
+		sEnvVars, _ := cmd.Flags().GetStringArray("sevar")
 		force, _ := cmd.Flags().GetBool("force")
+		varFile, _ := cmd.Flags().GetString("var-file")
 
 		// Setup the command.
 		organization, client, err := setup(cmd)
@@ -54,45 +58,79 @@ var variableCreateCmd = &cobra.Command{
 		varOptions = append(varOptions, createVariableOptions(EnvVars, tfe.CategoryEnv, false, false)...)
 		varOptions = append(varOptions, createVariableOptions(sEnvVars, tfe.CategoryEnv, false, true)...)
 
-		indexedVars := map[string]*tfe.Variable{}
-		if force {
-			// List variables.
-			variables, err := listVariables(client, workspace.ID)
+		// Read variables from file.
+		if varFile != "" {
+			// Read the content of the file.
+			FileContent, err := ioutil.ReadFile(varFile)
 			if err != nil {
-				log.Fatalf("Cannot list the variables for  %q: %s.", organization, err)
+				log.Fatalf("Cannot read the file %q: %s.", varFile, err)
 			}
 
-			// Index them by key.
-			for _, v := range variables {
-				indexedVars[v.Key] = v
+			// Parse it.
+			var v interface{}
+			err = hcl.Unmarshal(FileContent, &v)
+			if err != nil {
+				log.Fatalf("Cannot parse the file %q: %s.", varFile, err)
 			}
+
+			// Convert the content to `key=value` format.
+			varsFile := []string{}
+			s := reflect.ValueOf(v)
+			if s.Kind() == reflect.Map {
+				for _, key := range s.MapKeys() {
+					strct := s.MapIndex(key)
+					k := fmt.Sprintf("%s", key.Interface())
+					v := fmt.Sprintf("%s", strct.Interface())
+					varsFile = append(varsFile, fmt.Sprintf("%s=%s", k, v))
+				}
+			}
+
+			// Add it to the list of variables to create.
+			varOptions = append(varOptions, createVariableOptions(varsFile, tfe.CategoryTerraform, false, false)...)
+		}
+
+		// List existing variables.
+		variables, err := listVariables(client, workspace.ID)
+		if err != nil {
+			log.Fatalf("Cannot list the variables for  %q: %s.", organization, err)
+		}
+
+		// Index them by key.
+		indexedVars := map[string]*tfe.Variable{}
+		for _, v := range variables {
+			indexedVars[v.Key] = v
 		}
 
 		// Go through all the variables.
 		for _, opts := range varOptions {
+			//Check if the variable already exists.
+			v, exists := indexedVars[*(opts.Key)]
 
-			// Update it if needed.
-			if force {
-				// Ensure the variable exists.
-				if v, ok := indexedVars[*(opts.Key)]; ok {
-					// If so, update it.
-					options := tfe.VariableUpdateOptions{
-						Key:       opts.Key,
-						Value:     opts.Value,
-						HCL:       opts.HCL,
-						Sensitive: opts.Sensitive,
-					}
-					if _, err := client.Variables.Update(context.Background(), workspace.ID, v.ID, options); err != nil {
-						log.Fatalf("Cannot update variable %q: %s.", v.Key, err)
-					}
-					break
+			// Update an existing variable.
+			if exists && force {
+				options := tfe.VariableUpdateOptions{
+					Key:       opts.Key,
+					Value:     opts.Value,
+					HCL:       opts.HCL,
+					Sensitive: opts.Sensitive,
 				}
+				if _, err := client.Variables.Update(context.Background(), workspace.ID, v.ID, options); err != nil {
+					log.Fatalf("Cannot update variable %q: %s.", *(opts.Key), err)
+				}
+				log.Debugf("Variable %q updated successfully.", *(opts.Key))
+				continue
+			}
+
+			// Skip an existing variable.
+			if exists {
+				log.Fatalf("Cannot create %q: variable already exists.", *(opts.Key))
 			}
 
 			// Otherwise create it.
 			if _, err = createVariable(client, workspace.ID, opts); err != nil {
 				log.Fatalf("Cannot create variable %q: %s.", *(opts.Key), err)
 			}
+			log.Debugf("Variable %q created successfully.", *(opts.Key))
 		}
 	},
 }
@@ -139,11 +177,11 @@ func init() {
 
 	variableCreateCmd.Flags().StringArray("var", []string{}, "Create a regular variable")
 	variableCreateCmd.Flags().StringArray("svar", []string{}, "Create a regular sensitive variable")
-	variableCreateCmd.Flags().StringArray("hcl-var", []string{}, "Create an HCL variable")
-	variableCreateCmd.Flags().StringArray("shcl-var", []string{}, "Create a sensitive HCL variable")
-	variableCreateCmd.Flags().StringArray("env-var", []string{}, "Create an environment variable")
-	variableCreateCmd.Flags().StringArray("senv-var", []string{}, "Create a sensitive environment variable")
-	// variableCreateCmd.Flags().String("var-file", "", "Create HCL non-sensitive variables from a file")
+	variableCreateCmd.Flags().StringArray("hvar", []string{}, "Create an HCL variable")
+	variableCreateCmd.Flags().StringArray("shvar", []string{}, "Create a sensitive HCL variable")
+	variableCreateCmd.Flags().StringArray("evar", []string{}, "Create an environment variable")
+	variableCreateCmd.Flags().StringArray("sevar", []string{}, "Create a sensitive environment variable")
+	variableCreateCmd.Flags().String("var-file", "", "Create HCL non-sensitive variables from a file")
 	variableCreateCmd.Flags().BoolP("force", "f", false, "Overwrite a variable if it exists")
 }
 
