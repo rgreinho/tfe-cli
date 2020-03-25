@@ -2,6 +2,16 @@
 
 CLI client for Terraform Enterprise.
 
+## Installation
+
+For Linux/OSX, run the following command from a terminal to get the latest version:
+
+```bash
+bash <(curl -sSfL https://raw.githubusercontent.com/rgreinho/tfe-cli/master/extras/tfe-cli-installer.sh)
+```
+
+For Windows, download the binary from the [release page](https://github.com/rgreinho/tfe-cli/releases).
+
 ## Environment variables
 
 * `TFE_TOKEN`: Terraform Enterprise API token

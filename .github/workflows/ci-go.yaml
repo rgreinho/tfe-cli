@@ -92,5 +92,39 @@ jobs:
             ${{ runner.os }}-go-
       - name: Setup the project
         run: go mod download
-      - name: Build
-        run: go build
+      - name: Run Mage
+        uses: crazy-max/ghaction-mage@v1
+        with:
+          version: latest
+          args: dist
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - format
+      - lint
+      - test
+      - build
+    steps:
+      - name: Install tools
+        run: |
+          KEEPARELEASE_VERSION=1.2.0
+          mkdir -p bin
+          curl -sLO https://github.com/rgreinho/keeparelease/releases/download/${KEEPARELEASE_VERSION}/keeparelease-${KEEPARELEASE_VERSION}-linux-amd64
+          chmod a+x keeparelease-${KEEPARELEASE_VERSION}-linux-amd64
+          mv keeparelease-${KEEPARELEASE_VERSION}-linux-amd64 bin/keeparelease
+          echo "::add-path::$GITHUB_WORKSPACE/bin"
+      - name: Prepare release content
+        run: keeparelease -x > ${{ github.workflow }}-release.md
+      - name: Run Mage
+        uses: crazy-max/ghaction-mage@v1
+        with:
+          version: latest
+          args: dist
+      - name: Publish the release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ${{ github.workflow }}-release.md
+          files: |
+            dist/*
