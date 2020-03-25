@@ -2,12 +2,13 @@
 set -euo pipefail
 
 # Prepare variables.
-REPO=rgreinho/tfe-cli
+PROJECT=tfe-cli
+REPO=rgreinho/${PROJECT}
 LATEST_TAG=$(git ls-remote --tags --refs --sort="v:refname" git://github.com/${REPO}.git | tail -n1 | sed 's/.*\///')
 VERSION=${VERSION:-$LATEST_TAG}
 PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
 OPT_DIR="/usr/local/opt/${REPO}/${VERSION}"
-BINARY="tfe-client-${VERSION}-${PLATFORM}-amd64"
+BINARY="${PROJECT}-${VERSION}-${PLATFORM}-amd64"
 export GITHUB_OAUTH_TOKEN=${GITHUB_TOKEN}
 
 # Download the binaries.
@@ -19,7 +20,7 @@ fetch --repo="https://github.com/${REPO}" \
 
 # Create the simlink
 SRC="${OPT_DIR}/${BINARY}"
-TARGET="/usr/local/bin/tfe-client"
+TARGET="/usr/local/bin/${PROJECT}"
 echo "Updating permissions..."
 chmod +x "${SRC}"
 echo "Linking ${SRC} to ${TARGET}..."
