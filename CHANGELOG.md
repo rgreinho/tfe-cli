@@ -16,5 +16,6 @@ Initial version with support for managing:
 
 
 [//]: # (Release links)
+[1.0.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.0.0
 
 [//]: # (Issue/PR links)
