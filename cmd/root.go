@@ -16,9 +16,10 @@ var l string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "tfe-cli",
-	Short: "Manage TFE from the command line.",
-	Long:  `Manage TFE from the command line.`,
+	Use:     "tfe-cli",
+	Short:   "Manage TFE from the command line.",
+	Long:    `Manage TFE from the command line.`,
+	Version: Version,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceErrors = true
 		cmd.SilenceUsage = true
@@ -27,9 +28,6 @@ var rootCmd = &cobra.Command{
 		}
 		return nil
 	},
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
