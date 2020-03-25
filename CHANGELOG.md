@@ -14,7 +14,6 @@ Initial version with support for managing:
 * Workspaces
 * Variables
 
-
 [//]: # (Release links)
 [1.0.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.0.0
 
