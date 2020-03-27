@@ -134,12 +134,12 @@ func getTag() string {
 
 	// If the tag could not be retrieved from the environment, use Git.
 	if tag == "" {
-		tag, err := sh.Output("git", "describe")
+		t, err := sh.Output("git", "describe")
 		if err != nil {
 			fmt.Printf("Cannot retrieve current git tag: %s.\n", err)
 			os.Exit(1)
 		}
-		tag = tag
+		tag = t
 	}
 
 	return tag
