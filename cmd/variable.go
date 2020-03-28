@@ -74,19 +74,32 @@ var variableCreateCmd = &cobra.Command{
 			}
 
 			// Convert the content to `key=value` format.
-			varsFile := []string{}
+			regularVarFile := []string{}
+			HCLVarFile := []string{}
 			s := reflect.ValueOf(v)
 			if s.Kind() == reflect.Map {
 				for _, key := range s.MapKeys() {
 					strct := s.MapIndex(key)
 					k := fmt.Sprintf("%s", key.Interface())
-					v := fmt.Sprintf("%s", strct.Interface())
-					varsFile = append(varsFile, fmt.Sprintf("%s=%s", k, v))
+					value := reflect.ValueOf(strct.Interface())
+					// If the type is Slice, we consider it HCL.
+					if value.Kind() == reflect.Slice {
+						// Use reflection to extract the values of the slice.
+						b := make([]string, value.Len())
+						for i := 0; i < value.Len(); i++ {
+							b[i] = fmt.Sprintf("%s", value.Index(i))
+						}
+						HCLVarFile = append(HCLVarFile, fmt.Sprintf("%s=[%s]", k, strings.Join(b, ", ")))
+					} else {
+						// Otherwise it is always a regular variable.
+						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%s", k, strct.Interface()))
+					}
 				}
 			}
 
 			// Add it to the list of variables to create.
-			varOptions = append(varOptions, createVariableOptions(varsFile, tfe.CategoryTerraform, false, false)...)
+			varOptions = append(varOptions, createVariableOptions(regularVarFile, tfe.CategoryTerraform, false, false)...)
+			varOptions = append(varOptions, createVariableOptions(HCLVarFile, tfe.CategoryTerraform, true, false)...)
 		}
 
 		// List existing variables.
@@ -106,23 +119,24 @@ var variableCreateCmd = &cobra.Command{
 			//Check if the variable already exists.
 			v, exists := indexedVars[*(opts.Key)]
 
-			// Update an existing variable.
-			if exists && force {
-				options := tfe.VariableUpdateOptions{
-					Key:       opts.Key,
-					Value:     opts.Value,
-					HCL:       opts.HCL,
-					Sensitive: opts.Sensitive,
-				}
-				if _, err := client.Variables.Update(context.Background(), workspace.ID, v.ID, options); err != nil {
-					log.Fatalf("Cannot update variable %q: %s.", *(opts.Key), err)
-				}
-				log.Debugf("Variable %q updated successfully.", *(opts.Key))
-				continue
-			}
-
-			// Skip an existing variable.
+			// If the variable exists.
 			if exists {
+				// Update it.
+				if force {
+					options := tfe.VariableUpdateOptions{
+						Key:       opts.Key,
+						Value:     opts.Value,
+						HCL:       opts.HCL,
+						Sensitive: opts.Sensitive,
+					}
+					if _, err := client.Variables.Update(context.Background(), workspace.ID, v.ID, options); err != nil {
+						log.Fatalf("Cannot update variable %q: %s.", *(opts.Key), err)
+					}
+					log.Debugf("Variable %q updated successfully.", *(opts.Key))
+					continue
+				}
+
+				// Raise an error..
 				log.Fatalf("Cannot create %q: variable already exists.", *(opts.Key))
 			}
 
@@ -181,7 +195,7 @@ func init() {
 	variableCreateCmd.Flags().StringArray("shvar", []string{}, "Create a sensitive HCL variable")
 	variableCreateCmd.Flags().StringArray("evar", []string{}, "Create an environment variable")
 	variableCreateCmd.Flags().StringArray("sevar", []string{}, "Create a sensitive environment variable")
-	variableCreateCmd.Flags().String("var-file", "", "Create HCL non-sensitive variables from a file")
+	variableCreateCmd.Flags().String("var-file", "", "Create non-sensitive regular and HCL variables from a file")
 	variableCreateCmd.Flags().BoolP("force", "f", false, "Overwrite a variable if it exists")
 }
 
