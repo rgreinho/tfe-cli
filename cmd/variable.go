@@ -102,16 +102,10 @@ var variableCreateCmd = &cobra.Command{
 			varOptions = append(varOptions, createVariableOptions(HCLVarFile, tfe.CategoryTerraform, true, false)...)
 		}
 
-		// List existing variables.
-		variables, err := listVariables(client, workspace.ID)
+		// List existing variables and index them by key.
+		indexedVars, err := indexVariables(client, workspace.ID, organization)
 		if err != nil {
-			log.Fatalf("Cannot list the variables for  %q: %s.", organization, err)
-		}
-
-		// Index them by key.
-		indexedVars := map[string]*tfe.Variable{}
-		for _, v := range variables {
-			indexedVars[v.Key] = v
+			log.Fatalf("Cannot index variables: %s.", err)
 		}
 
 		// Go through all the variables.
@@ -144,7 +138,7 @@ var variableCreateCmd = &cobra.Command{
 			if _, err = createVariable(client, workspace.ID, opts); err != nil {
 				log.Fatalf("Cannot create variable %q: %s.", *(opts.Key), err)
 			}
-			log.Debugf("Variable %q created successfully.", *(opts.Key))
+			log.Infof("Variable %q created successfully.", *(opts.Key))
 		}
 	},
 }
@@ -184,9 +178,53 @@ var variableListCmd = &cobra.Command{
 	},
 }
 
+var variableDeleteCmd = &cobra.Command{
+	Use:   "delete [WORKSPACE] [VARIABLE]",
+	Short: "Delete a TFE variable for a specific workspace",
+	Long:  `Delete a TFE variable for a specific workspace.`,
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		// Read the flags.
+		wsName := args[0]
+		varName := args[1]
+
+		// Setup the command.
+		organization, client, err := setup(cmd)
+		if err != nil {
+			log.Fatalf("Cannot execute the command: %s.", err)
+		}
+
+		// Retrieve the workspace.
+		workspace, err := readWorkspace(client, organization, wsName)
+		if err != nil {
+			log.Fatalf("Cannot retrieve workspace %q: %s.", wsName, err)
+		}
+
+		// List existing variables and index them by key.
+		indexedVars, err := indexVariables(client, workspace.ID, organization)
+		if err != nil {
+			log.Fatalf("Cannot index variables: %s.", err)
+		}
+
+		// Check if it exists.
+		v, exists := indexedVars[varName]
+		if !exists {
+			log.Warningf("Cannot delete variable %q: it does not exist.", varName)
+			return
+		}
+
+		// And delete it if it does.
+		if err := deleteVariable(client, workspace.ID, v.ID); err != nil {
+			log.Fatalf("Cannot delete variable %q: %s.", varName, err)
+		}
+		log.Infof("Variable %q deleted successfully.", varName)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(variableCmd)
 	variableCmd.AddCommand(variableCreateCmd)
+	variableCmd.AddCommand(variableDeleteCmd)
 	variableCmd.AddCommand(variableListCmd)
 
 	variableCreateCmd.Flags().StringArray("var", []string{}, "Create a regular variable")
@@ -256,4 +294,25 @@ func createVariableOptions(vars []string, category tfe.CategoryType, hcl, sensit
 		optionList = append(optionList, options)
 	}
 	return optionList
+}
+
+func indexVariables(client *tfe.Client, workspaceID, organization string) (map[string]*tfe.Variable, error) {
+	// List existing variables.
+	variables, err := listVariables(client, workspaceID)
+	if err != nil {
+		return nil, fmt.Errorf("cannot list the variables for  %q: %s", organization, err)
+	}
+
+	// Index them by key.
+	indexedVars := map[string]*tfe.Variable{}
+	for _, v := range variables {
+		indexedVars[v.Key] = v
+	}
+
+	return indexedVars, nil
+}
+
+func deleteVariable(client *tfe.Client, workspaceID, variableID string) error {
+	return client.Variables.Delete(context.Background(), workspaceID, variableID)
+
 }
