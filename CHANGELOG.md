@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
 * Ability to detect HCL variables from a varfile. [#14]
+* Ability to delete workspaces. [#15]
 
 ## [1.0.0] - 2020-03-25
 
@@ -23,3 +24,4 @@ Initial version with support for managing:
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
+[#15]: https://github.com/rgreinho/tfe-cli/pull/15
