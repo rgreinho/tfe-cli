@@ -46,6 +46,14 @@ Create a new workspace:
 tfe-cli workspace create my-new-workspace
 ```
 
+Setup the VCS Repository:
+
+```bash
+tfe-cli workspace create my-new-workspace --vcsrepository ot-8Xc1NTYpjIQZIwIh:organization/repository:master
+```
+
+The format of the VCS option is string of colon sperated values: `<OAuthTokenID>:<repository>:<branch>`.
+
 ### Variables
 
 Manage variables for a workspace.

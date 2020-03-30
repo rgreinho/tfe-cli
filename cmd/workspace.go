@@ -10,14 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// workspaceCmd represents the workspace command
+// workspaceCmd represents the workspace command.
 var workspaceCmd = &cobra.Command{
 	Use:   "workspace",
 	Short: "Manage TFE workspaces",
 	Long:  `Manage TFE workspaces.`,
 }
 
-// createCmd represents the create command
+// createCmd represents the create command.
 var workspaceCreateCmd = &cobra.Command{
 	Use:   "create [WORKSPACE]",
 	Short: "Create a TFE workspace",
@@ -101,6 +101,29 @@ var workspaceCreateCmd = &cobra.Command{
 	},
 }
 
+// workspaceDeleteCmd represents the delete command.
+var workspaceDeleteCmd = &cobra.Command{
+	Use:   "delete [WORKSPACE]",
+	Short: "Delete a TFE workspace",
+	Long:  `Delete a TFE workspace.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		// Setup the command.
+		organization, client, err := setup(cmd)
+		if err != nil {
+			log.Fatalf("Cannot execute the command: %s.", err)
+		}
+
+		// Read the flags.
+		name := args[0]
+
+		// Delete the workspace.
+		if err := deleteWorkspace(client, organization, name); err != nil {
+			log.Fatalf("Cannot delete workspace %q: %s.", name, err)
+		}
+	},
+}
+
 var workspaceListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List TFE workspaces",
@@ -128,6 +151,7 @@ var workspaceListCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(workspaceCmd)
 	workspaceCmd.AddCommand(workspaceCreateCmd)
+	workspaceCmd.AddCommand(workspaceDeleteCmd)
 	workspaceCmd.AddCommand(workspaceListCmd)
 
 	workspaceCreateCmd.Flags().Bool("autoapply", false, "Apply changes automatically")
@@ -135,12 +159,12 @@ func init() {
 	workspaceCreateCmd.Flags().String("terraformversion", "", "Specify the Terraform version")
 	workspaceCreateCmd.Flags().String("workingdirectory", "", "Specify a relative path that Terraform will execute within")
 	// colon sperated values: <OAuthTokenID>:<repository>:<branch>
-	// example: ot-8Xc1NTYpjIQZIwIh:shipstation/mercury-appstack:master
+	// example: ot-8Xc1NTYpjIQZIwIh:organization/repository:master
 	workspaceCreateCmd.Flags().String("vcsrepository", "", "Specify a workspace's VCS repository")
 	workspaceCreateCmd.Flags().BoolP("force", "f", false, "Update workspace if it exists")
 }
 
-func readWorkspace(client *tfe.Client, organization string, workspace string) (*tfe.Workspace, error) {
+func readWorkspace(client *tfe.Client, organization, workspace string) (*tfe.Workspace, error) {
 	w, err := client.Workspaces.Read(context.Background(), organization, workspace)
 	if err != nil {
 		return nil, err
@@ -191,4 +215,11 @@ func listWorkspaces(client *tfe.Client, organization string) ([]*tfe.Workspace, 
 	}
 
 	return results, nil
+}
+
+func deleteWorkspace(client *tfe.Client, organization, workspace string) error {
+	if err := client.Workspaces.Delete(context.Background(), organization, workspace); err != nil {
+		return err
+	}
+	return nil
 }
