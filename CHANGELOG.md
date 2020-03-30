@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix problem preventing to create a workspace. [#18]
+* Fix problem preventing to create a new workspace. [#18]
+* Fix the installer. [#19]
 
 ## [1.0.0] - 2020-03-25
 
@@ -30,3 +31,4 @@ Initial version with support for managing:
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
 [#15]: https://github.com/rgreinho/tfe-cli/pull/15
 [#18]: https://github.com/rgreinho/tfe-cli/pull/18
+[#19]: https://github.com/rgreinho/tfe-cli/pull/19
