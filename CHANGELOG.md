@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2020-03-31
+
 ### Added
 
 * Ability to detect HCL variables from a varfile. [#14]
@@ -27,6 +29,7 @@ Initial version with support for managing:
 
 [//]: # (Release links)
 [1.0.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.0.0
+[1.1.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.1.0
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
