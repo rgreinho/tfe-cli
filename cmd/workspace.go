@@ -43,7 +43,9 @@ var workspaceCreateCmd = &cobra.Command{
 		// Check whether the workspace exists.
 		w, err := readWorkspace(client, organization, name)
 		if err != nil {
-			log.Fatalf("Cannot retrieve workspace %q: %s.", name, err)
+			if !strings.Contains(err.Error(), "resource not found") {
+				log.Fatalf("Cannot retrieve workspace %q: %s.", name, err)
+			}
 		}
 
 		// Update the workspace if needed.
@@ -121,6 +123,8 @@ var workspaceDeleteCmd = &cobra.Command{
 		if err := deleteWorkspace(client, organization, name); err != nil {
 			log.Fatalf("Cannot delete workspace %q: %s.", name, err)
 		}
+
+		log.Infof("Workspace %q deleted successfully.", name)
 	},
 }
 
