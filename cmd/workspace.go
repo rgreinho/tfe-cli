@@ -48,34 +48,34 @@ var workspaceCreateCmd = &cobra.Command{
 			}
 		}
 
-		// Update the workspace if needed.
-		if force {
-			// Prepare the new workspace options.
-			options := tfe.WorkspaceUpdateOptions{
-				AutoApply:           tfe.Bool(autoapply),
-				FileTriggersEnabled: tfe.Bool(filetriggers),
-				Name:                tfe.String(name),
-				TerraformVersion:    tfe.String(terraformversion),
-				WorkingDirectory:    tfe.String(workingdirectory),
-			}
-			if len(splitVCS) == 3 {
-				options.VCSRepo = &tfe.VCSRepoOptions{
-					Branch:       tfe.String(splitVCS[2]),
-					Identifier:   tfe.String(splitVCS[1]),
-					OAuthTokenID: tfe.String(splitVCS[0]),
-				}
-			}
-
-			if _, err := updateWorkspaceByID(client, w.ID, options); err != nil {
-				log.Fatalf("Cannot update workspace %q: %s.", name, err)
-			}
-
-			log.Infof("Workspace %q updated successfully.", name)
-			return
-		}
-
-		// Otherwise do nothing.
 		if w != nil {
+			// Update the workspace if needed.
+			if force {
+				// Prepare the new workspace options.
+				options := tfe.WorkspaceUpdateOptions{
+					AutoApply:           tfe.Bool(autoapply),
+					FileTriggersEnabled: tfe.Bool(filetriggers),
+					Name:                tfe.String(name),
+					TerraformVersion:    tfe.String(terraformversion),
+					WorkingDirectory:    tfe.String(workingdirectory),
+				}
+				if len(splitVCS) == 3 {
+					options.VCSRepo = &tfe.VCSRepoOptions{
+						Branch:       tfe.String(splitVCS[2]),
+						Identifier:   tfe.String(splitVCS[1]),
+						OAuthTokenID: tfe.String(splitVCS[0]),
+					}
+				}
+
+				if _, err := updateWorkspaceByID(client, w.ID, options); err != nil {
+					log.Fatalf("Cannot update workspace %q: %s.", name, err)
+				}
+
+				log.Infof("Workspace %q updated successfully.", name)
+				return
+			}
+
+			// Otherwise do nothing.
 			log.Infof("Workspace %q already exists.", name)
 			return
 		}
