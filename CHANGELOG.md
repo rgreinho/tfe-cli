@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+* Incorrect enconding of HCL lists. [#27]
+
 ## [1.1.1] - 2020-03-31
 
 ### Fixed
@@ -46,3 +50,4 @@ Initial version with support for managing:
 [#19]: https://github.com/rgreinho/tfe-cli/pull/19
 [#20]: https://github.com/rgreinho/tfe-cli/pull/20
 [#23]: https://github.com/rgreinho/tfe-cli/pull/23
+[#27]: https://github.com/rgreinho/tfe-cli/pull/27
