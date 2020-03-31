@@ -89,7 +89,7 @@ var variableCreateCmd = &cobra.Command{
 						for i := 0; i < value.Len(); i++ {
 							b[i] = fmt.Sprintf("%s", value.Index(i))
 						}
-						HCLVarFile = append(HCLVarFile, fmt.Sprintf("%s=[%s]", k, strings.Join(b, ", ")))
+						HCLVarFile = append(HCLVarFile, fmt.Sprintf("%s=[\"%s\"]", k, strings.Join(b, "\", \"")))
 					} else {
 						// Otherwise it is always a regular variable.
 						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%s", k, strct.Interface()))
