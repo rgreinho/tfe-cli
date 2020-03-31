@@ -35,7 +35,7 @@ var variableCreateCmd = &cobra.Command{
 		EnvVars, _ := cmd.Flags().GetStringArray("evar")
 		sEnvVars, _ := cmd.Flags().GetStringArray("sevar")
 		force, _ := cmd.Flags().GetBool("force")
-		varFile, _ := cmd.Flags().GetString("var-file")
+		varFiles, _ := cmd.Flags().GetStringArray("var-file")
 
 		// Setup the command.
 		organization, client, err := setup(cmd)
@@ -59,7 +59,7 @@ var variableCreateCmd = &cobra.Command{
 		varOptions = append(varOptions, createVariableOptions(sEnvVars, tfe.CategoryEnv, false, true)...)
 
 		// Read variables from file.
-		if varFile != "" {
+		for _, varFile := range varFiles {
 			// Read the content of the file.
 			FileContent, err := ioutil.ReadFile(varFile)
 			if err != nil {
@@ -233,7 +233,7 @@ func init() {
 	variableCreateCmd.Flags().StringArray("shvar", []string{}, "Create a sensitive HCL variable")
 	variableCreateCmd.Flags().StringArray("evar", []string{}, "Create an environment variable")
 	variableCreateCmd.Flags().StringArray("sevar", []string{}, "Create a sensitive environment variable")
-	variableCreateCmd.Flags().String("var-file", "", "Create non-sensitive regular and HCL variables from a file")
+	variableCreateCmd.Flags().StringArray("var-file", []string{}, "Create non-sensitive regular and HCL variables from a file")
 	variableCreateCmd.Flags().BoolP("force", "f", false, "Overwrite a variable if it exists")
 }
 
