@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2020-03-31
+
 ### Fixed
 
 * Fix the problem preventing to update an existing workspace, or to create a new
   workspace with the`--force` flag. [#23]
 
-## [1.1.0] - 2020-03-31
+## [1.1.0] - 2020-03-30
 
 ### Added
 
@@ -35,6 +37,7 @@ Initial version with support for managing:
 [//]: # (Release links)
 [1.0.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.0.0
 [1.1.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.1.0
+[1.1.1]: https://github.com/rgreinho/tfe-cli/releases/tag/1.1.1
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
