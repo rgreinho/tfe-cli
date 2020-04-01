@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2020-04-01
+
 ### Added
 
 * Support multiple varfiles when create/updating variables. [#28]
 
 ### Fixed
 
-* Incorrect enconding of HCL lists. [#27]
+* Incorrect encoding of HCL lists. [#27]
 
 ## [1.1.1] - 2020-03-31
 
@@ -46,6 +48,7 @@ Initial version with support for managing:
 [1.0.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.0.0
 [1.1.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.1.0
 [1.1.1]: https://github.com/rgreinho/tfe-cli/releases/tag/1.1.1
+[1.2.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.2.0
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
