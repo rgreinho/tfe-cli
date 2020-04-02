@@ -97,6 +97,12 @@ jobs:
         with:
           version: latest
           args: dist
+      - name: Upload artifacts for release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v1
+        with:
+          name: binaries
+          path: dist/
 
   release:
     runs-on: ubuntu-latest
@@ -108,9 +114,10 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v1
+      - uses: actions/download-artifact@v1
         with:
-          go-version: "1.14.x"
+          name: binaries
+          path: dist/
       - name: Install tools
         run: |
           KEEPARELEASE_VERSION=1.2.0
@@ -121,11 +128,6 @@ jobs:
           echo "::add-path::$GITHUB_WORKSPACE/bin"
       - name: Prepare release content
         run: keeparelease -x > ${{ github.workflow }}-release.md
-      - name: Run Mage
-        uses: crazy-max/ghaction-mage@v1
-        with:
-          version: latest
-          args: dist
       - name: Publish the release
         uses: softprops/action-gh-release@v1
         env:
