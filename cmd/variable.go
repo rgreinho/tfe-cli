@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/hcl"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 )
 
 // variablesCmd represents the variables command
@@ -109,37 +110,23 @@ var variableCreateCmd = &cobra.Command{
 		}
 
 		// Go through all the variables.
-		for _, opts := range varOptions {
+		var eg errgroup.Group
+		for _, options := range varOptions {
+			opts := options
 			//Check if the variable already exists.
 			v, exists := indexedVars[*(opts.Key)]
 
-			// If the variable exists.
-			if exists {
-				// Update it.
-				if force {
-					options := tfe.VariableUpdateOptions{
-						Key:       opts.Key,
-						Value:     opts.Value,
-						HCL:       opts.HCL,
-						Sensitive: opts.Sensitive,
-					}
-					if _, err := client.Variables.Update(context.Background(), workspace.ID, v.ID, options); err != nil {
-						log.Fatalf("Cannot update variable %q: %s.", *(opts.Key), err)
-					}
-					log.Debugf("Variable %q updated successfully.", *(opts.Key))
-					continue
-				}
-
-				// Raise an error..
-				log.Fatalf("Cannot create %q: variable already exists.", *(opts.Key))
-			}
-
-			// Otherwise create it.
-			if _, err = createVariable(client, workspace.ID, opts); err != nil {
-				log.Fatalf("Cannot create variable %q: %s.", *(opts.Key), err)
-			}
-			log.Infof("Variable %q created successfully.", *(opts.Key))
+			// Upsert it.
+			eg.Go(func() error {
+				return upsert(client, workspace, v.ID, opts, exists, force)
+			})
 		}
+
+		// Wait for the upserts and fails at the first error.
+		if err := eg.Wait(); err != nil {
+			log.Fatalf("%s.", err)
+		}
+
 	},
 }
 
@@ -314,5 +301,35 @@ func indexVariables(client *tfe.Client, workspaceID, organization string) (map[s
 
 func deleteVariable(client *tfe.Client, workspaceID, variableID string) error {
 	return client.Variables.Delete(context.Background(), workspaceID, variableID)
+}
 
+func upsert(client *tfe.Client, workspace *tfe.Workspace, variableID string, opts tfe.VariableCreateOptions, exists, force bool) error {
+	// If the variable exists.
+	if exists {
+		// Update it.
+		if force {
+			options := tfe.VariableUpdateOptions{
+				Key:       opts.Key,
+				Value:     opts.Value,
+				HCL:       opts.HCL,
+				Sensitive: opts.Sensitive,
+			}
+			log.Debugf("Processing %q: %s [%s]", *(opts.Key), *(opts.Value), variableID)
+			if _, err := client.Variables.Update(context.Background(), workspace.ID, variableID, options); err != nil {
+				return fmt.Errorf("cannot update variable %q (%q): %s", *(opts.Key), variableID, err)
+			}
+			log.Infof("Variable %q updated successfully.", *(opts.Key))
+			return nil
+		}
+
+		// Else raise an error.
+		return fmt.Errorf("cannot create %q: variable already exists", *(opts.Key))
+	}
+
+	// Otherwise create it.
+	if _, err := createVariable(client, workspace.ID, opts); err != nil {
+		return fmt.Errorf("cannot create variable %q: %s", *(opts.Key), err)
+	}
+	log.Infof("Variable %q created successfully.", *(opts.Key))
+	return nil
 }
