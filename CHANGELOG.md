@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Changed
 
 * Make variable creation process asynchronous. [#31]
+
+### Fixed
+
+* Handle `number` variables. [#32]
 
 ## [1.2.0] - 2020-04-01
 
@@ -64,3 +68,4 @@ Initial version with support for managing:
 [#27]: https://github.com/rgreinho/tfe-cli/pull/27
 [#28]: https://github.com/rgreinho/tfe-cli/pull/28
 [#31]: https://github.com/rgreinho/tfe-cli/pull/31
+[#32]: https://github.com/rgreinho/tfe-cli/pull/32
