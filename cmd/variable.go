@@ -84,14 +84,21 @@ var variableCreateCmd = &cobra.Command{
 					k := fmt.Sprintf("%s", key.Interface())
 					value := reflect.ValueOf(strct.Interface())
 					// If the type is Slice, we consider it HCL.
-					if value.Kind() == reflect.Slice {
+					switch value.Kind() {
+					case reflect.Slice:
 						// Use reflection to extract the values of the slice.
 						b := make([]string, value.Len())
 						for i := 0; i < value.Len(); i++ {
 							b[i] = fmt.Sprintf("%s", value.Index(i))
 						}
 						HCLVarFile = append(HCLVarFile, fmt.Sprintf("%s=[\"%s\"]", k, strings.Join(b, "\", \"")))
-					} else {
+					case reflect.Int:
+						// Handle integers.
+						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%d", k, strct.Interface()))
+					case reflect.Float64:
+						// Handle floats.
+						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%f", k, strct.Interface()))
+					default:
 						// Otherwise it is always a regular variable.
 						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%s", k, strct.Interface()))
 					}
@@ -115,10 +122,14 @@ var variableCreateCmd = &cobra.Command{
 			opts := options
 			//Check if the variable already exists.
 			v, exists := indexedVars[*(opts.Key)]
+			variableID := ""
+			if exists {
+				variableID = v.ID
+			}
 
 			// Upsert it.
 			eg.Go(func() error {
-				return upsert(client, workspace, v.ID, opts, exists, force)
+				return upsert(client, workspace, variableID, opts, exists, force)
 			})
 		}
 
