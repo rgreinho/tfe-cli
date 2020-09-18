@@ -3,12 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"reflect"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
-	"github.com/hashicorp/hcl"
+	"github.com/rgreinho/tfe-cli/tfecli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -39,7 +37,7 @@ var variableCreateCmd = &cobra.Command{
 		varFiles, _ := cmd.Flags().GetStringArray("var-file")
 
 		// Setup the command.
-		organization, client, err := setup(cmd)
+		organization, client, err := tfecli.Setup(cmd)
 		if err != nil {
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}
@@ -61,52 +59,21 @@ var variableCreateCmd = &cobra.Command{
 
 		// Read variables from file.
 		for _, varFile := range varFiles {
-			// Read the content of the file.
-			FileContent, err := ioutil.ReadFile(varFile)
+			// Parse the varfile.
+			HCLvars, err := tfecli.ParseVarFile(varFile)
 			if err != nil {
 				log.Fatalf("Cannot read the file %q: %s.", varFile, err)
 			}
 
-			// Parse it.
-			var v interface{}
-			err = hcl.Unmarshal(FileContent, &v)
-			if err != nil {
-				log.Fatalf("Cannot parse the file %q: %s.", varFile, err)
-			}
-
 			// Convert the content to `key=value` format.
-			regularVarFile := []string{}
 			HCLVarFile := []string{}
-			s := reflect.ValueOf(v)
-			if s.Kind() == reflect.Map {
-				for _, key := range s.MapKeys() {
-					strct := s.MapIndex(key)
-					k := fmt.Sprintf("%s", key.Interface())
-					value := reflect.ValueOf(strct.Interface())
-					// If the type is Slice, we consider it HCL.
-					switch value.Kind() {
-					case reflect.Slice:
-						// Use reflection to extract the values of the slice.
-						b := make([]string, value.Len())
-						for i := 0; i < value.Len(); i++ {
-							b[i] = fmt.Sprintf("%s", value.Index(i))
-						}
-						HCLVarFile = append(HCLVarFile, fmt.Sprintf("%s=[\"%s\"]", k, strings.Join(b, "\", \"")))
-					case reflect.Int:
-						// Handle integers.
-						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%d", k, strct.Interface()))
-					case reflect.Float64:
-						// Handle floats.
-						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%f", k, strct.Interface()))
-					default:
-						// Otherwise it is always a regular variable.
-						regularVarFile = append(regularVarFile, fmt.Sprintf("%s=%s", k, strct.Interface()))
-					}
-				}
+			iter := HCLvars.MapRange()
+			for iter.Next() {
+				encodedVar := tfecli.EncodeVariable(iter.Key(), iter.Value())
+				HCLVarFile = append(HCLVarFile, encodedVar)
 			}
 
 			// Add it to the list of variables to create.
-			varOptions = append(varOptions, createVariableOptions(regularVarFile, tfe.CategoryTerraform, false, false)...)
 			varOptions = append(varOptions, createVariableOptions(HCLVarFile, tfe.CategoryTerraform, true, false)...)
 		}
 
@@ -151,7 +118,7 @@ var variableListCmd = &cobra.Command{
 		name := args[0]
 
 		// Setup the command.
-		organization, client, err := setup(cmd)
+		organization, client, err := tfecli.Setup(cmd)
 		if err != nil {
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}
@@ -187,7 +154,7 @@ var variableDeleteCmd = &cobra.Command{
 		varName := args[1]
 
 		// Setup the command.
-		organization, client, err := setup(cmd)
+		organization, client, err := tfecli.Setup(cmd)
 		if err != nil {
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}
@@ -276,11 +243,10 @@ func createVariableOptions(vars []string, category tfe.CategoryType, hcl, sensit
 	optionList := []tfe.VariableCreateOptions{}
 
 	for _, v := range vars {
-		splitV := strings.Split(v, "=")
+		splitV := strings.SplitN(v, "=", 2)
 		if len(splitV) != 2 {
-			log.Fatalf("Invalid variable %q: the format must be key=value.", v)
+			log.Fatalf("Invalid variable %q: the format must be key=value. %d", v, len(splitV))
 		}
-
 		options := tfe.VariableCreateOptions{
 			Key:       tfe.String(splitV[0]),
 			Value:     tfe.String(splitV[1]),
