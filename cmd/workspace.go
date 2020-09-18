@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/rgreinho/tfe-cli/tfecli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -25,7 +26,7 @@ var workspaceCreateCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// Setup the command.
-		organization, client, err := setup(cmd)
+		organization, client, err := tfecli.Setup(cmd)
 		if err != nil {
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}
@@ -111,7 +112,7 @@ var workspaceDeleteCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		// Setup the command.
-		organization, client, err := setup(cmd)
+		organization, client, err := tfecli.Setup(cmd)
 		if err != nil {
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}
@@ -134,7 +135,7 @@ var workspaceListCmd = &cobra.Command{
 	Long:  `List TFE workspaces.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Setup the command.
-		organization, client, err := setup(cmd)
+		organization, client, err := tfecli.Setup(cmd)
 		if err != nil {
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}

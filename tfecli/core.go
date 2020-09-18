@@ -1,4 +1,4 @@
-package cmd
+package tfecli
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// GetOrganization retrieves the TFE organization.
 func getOrganization(cmd *cobra.Command) (string, error) {
 	// Get organization from CLI flag.
 	organization, _ := cmd.Flags().GetString("organization")
@@ -21,6 +22,7 @@ func getOrganization(cmd *cobra.Command) (string, error) {
 	return organization, nil
 }
 
+// GetToken retrieves the TFE token.
 func getToken(cmd *cobra.Command) (string, error) {
 	// Get token.
 	token, _ := cmd.Flags().GetString("token")
@@ -34,6 +36,7 @@ func getToken(cmd *cobra.Command) (string, error) {
 	return token, nil
 }
 
+// NewClient prepares a TFE client.
 func newClient(token string) (*tfe.Client, error) {
 	// Prepare TFE config.
 	config := &tfe.Config{
@@ -48,23 +51,24 @@ func newClient(token string) (*tfe.Client, error) {
 	return client, err
 }
 
-func setup(cmd *cobra.Command) (organization string, client *tfe.Client, err error) {
+// Setup prepares the TFE client.
+func Setup(cmd *cobra.Command) (organization string, client *tfe.Client, err error) {
 	// Get organization.
 	organization, err = getOrganization(cmd)
 	if err != nil {
-		fmt.Errorf("no organization specified")
+		err = fmt.Errorf("no organization specified: %s", err)
 	}
 
 	// Get token.
 	token, err := getToken(cmd)
 	if err != nil {
-		fmt.Errorf("no organization specified")
+		err = fmt.Errorf("no token specified: %s", err)
 	}
 
 	// Create the TFE client.
 	client, err = newClient(token)
 	if err != nil {
-		fmt.Errorf("cannot create TFE client: %s", err)
+		err = fmt.Errorf("cannot create TFE client: %s", err)
 	}
 
 	return
