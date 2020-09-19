@@ -118,21 +118,14 @@ jobs:
         with:
           name: binaries
           path: dist/
-      - name: Install tools
-        run: |
-          KEEPARELEASE_VERSION=1.2.0
-          mkdir -p bin
-          curl -sLO https://github.com/rgreinho/keeparelease/releases/download/${KEEPARELEASE_VERSION}/keeparelease-${KEEPARELEASE_VERSION}-linux-amd64
-          chmod a+x keeparelease-${KEEPARELEASE_VERSION}-linux-amd64
-          mv keeparelease-${KEEPARELEASE_VERSION}-linux-amd64 bin/keeparelease
-          echo "::add-path::$GITHUB_WORKSPACE/bin"
-      - name: Prepare release content
-        run: keeparelease -x > ${{ github.workflow }}-release.md
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v1.1.0
       - name: Publish the release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: ${{ github.workflow }}-release.md
+          body: ${{ steps.changelog_reader.outputs.log_entry }}
           files: |
             dist/*
