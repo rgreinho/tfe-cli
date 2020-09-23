@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-09-23
+
+### Fixed
+
+* Fix number representation. [#37]
+
 ## [1.4.0] - 2020-09-18
 
 ### Added
@@ -67,6 +73,7 @@ Initial version with support for managing:
 [1.2.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.2.0
 [1.3.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.3.0
 [1.4.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.0
+[1.4.1]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.1
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
@@ -80,3 +87,4 @@ Initial version with support for managing:
 [#31]: https://github.com/rgreinho/tfe-cli/pull/31
 [#32]: https://github.com/rgreinho/tfe-cli/pull/32
 [#34]: https://github.com/rgreinho/tfe-cli/pull/34
+[#37]: https://github.com/rgreinho/tfe-cli/pull/37

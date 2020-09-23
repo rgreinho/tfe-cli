@@ -21,6 +21,8 @@ func TestEncodeInt(t *testing.T) {
         }
       }
       `, `mapvar={key1="value1",key2={key21="value21",},}`},
+		{`intvar = 3000`, `intvar=3000`},
+		{`floatvar = 9.99`, `floatvar=9.990000`},
 	}
 
 	for _, tc := range testcases {
