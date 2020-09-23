@@ -31,11 +31,11 @@ func ParseVarFileContent(bs []byte) (reflect.Value, error) {
 }
 
 func encodeIntVariable(key reflect.Value, value reflect.Value) string {
-	return fmt.Sprintf(`%s="%d"`, key, value.Interface())
+	return fmt.Sprintf(`%s=%d`, key, value.Interface())
 }
 
 func encodeFloatVariable(key reflect.Value, value reflect.Value) string {
-	return fmt.Sprintf(`%s="%f"`, key, value.Interface())
+	return fmt.Sprintf(`%s=%f`, key, value.Interface())
 }
 
 func encodeMapVariable(key reflect.Value, value reflect.Value) string {
