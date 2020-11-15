@@ -3,84 +3,41 @@ package tfecli
 import (
 	"fmt"
 	"io/ioutil"
-	"reflect"
-	"strings"
-
-	"github.com/hashicorp/hcl"
+	"regexp"
 )
 
-// ParseVarFile reads an HCL varfile and returns its content as a map.
-func ParseVarFile(varFile string) (reflect.Value, error) {
+// HCLVariable defines a HCLVariable.
+type HCLVariable struct {
+	key   string
+	value string
+}
+
+func (h HCLVariable) String() string {
+	return fmt.Sprintf("%s=%s", h.key, h.value)
+}
+
+// ParseVarFile reads an HCL varfile and returns its content as a list of HCL variables.
+func ParseVarFile(varFile string) ([]HCLVariable, error) {
 	fileContent, err := ioutil.ReadFile(varFile)
 	if err != nil {
-		return reflect.Value{}, fmt.Errorf("cannot read the file %q: %s", varFile, err)
+		return []HCLVariable{}, fmt.Errorf("cannot read the file %q: %s", varFile, err)
 	}
 
-	return ParseVarFileContent(fileContent)
+	return SimpleParseVarFile(string(fileContent)), nil
 }
 
-// ParseVarFileContent parses the content of an HCL varfile and returns its content as a map.
-func ParseVarFileContent(bs []byte) (reflect.Value, error) {
-	var out interface{}
-	err := hcl.Unmarshal(bs, &out)
-	if err != nil {
-		return reflect.Value{}, fmt.Errorf("cannot read the HCL content: %s", err)
-	}
-	outMap := reflect.ValueOf(out)
-	return outMap, nil
-}
-
-func encodeIntVariable(key reflect.Value, value reflect.Value) string {
-	return fmt.Sprintf(`%s=%d`, key, value.Interface())
-}
-
-func encodeFloatVariable(key reflect.Value, value reflect.Value) string {
-	return fmt.Sprintf(`%s=%f`, key, value.Interface())
-}
-
-func encodeMapVariable(key reflect.Value, value reflect.Value) string {
-	iter := value.MapRange()
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("{"))
-	for iter.Next() {
-		sb.WriteString(EncodeVariable(iter.Key(), iter.Value()))
-		sb.WriteString(",")
-	}
-	sb.WriteString("}")
-	return sb.String()
-}
-
-func encodeSliceVariable(key reflect.Value, value reflect.Value) string {
-	b := make([]string, value.Len())
-	for i := 0; i < value.Len(); i++ {
-		b[i] = fmt.Sprintf("%s", value.Index(i))
-	}
-	return fmt.Sprintf("%s=[\"%s\"]", key, strings.Join(b, "\", \""))
-}
-
-func encodeStringVariable(key reflect.Value, value reflect.Value) string {
-	return fmt.Sprintf(`%s="%s"`, key, value.Interface())
-}
-
-// EncodeVariable encodes a variable defined in a tfvars file.
-func EncodeVariable(key reflect.Value, value reflect.Value) string {
-	concreteValue := reflect.ValueOf(value.Interface())
-	switch concreteValue.Kind() {
-	case reflect.Int:
-		return encodeIntVariable(key, concreteValue)
-	case reflect.Float64:
-		return encodeFloatVariable(key, concreteValue)
-	case reflect.Map:
-		return encodeMapVariable(key, concreteValue)
-	case reflect.Slice:
-		if concreteValue.Index(0).Kind() == reflect.Map {
-			var sb strings.Builder
-			sb.WriteString(fmt.Sprintf("%s=", key))
-			sb.WriteString(EncodeVariable(key, concreteValue.Index(0)))
-			return sb.String()
+// SimpleParseVarFile parses a var file and returns a list of HCLVariables.
+func SimpleParseVarFile(varFile string) []HCLVariable {
+	re := regexp.MustCompile(`(?im)^([a-z0-9_]*)\s*=\s*`)
+	matches := re.FindAllStringSubmatch(varFile, -1)
+	splits := re.Split(varFile, -1)
+	HCLVariables := []HCLVariable{}
+	for i, match := range matches {
+		v := HCLVariable{
+			key:   match[1],
+			value: splits[i+1],
 		}
-		return encodeSliceVariable(key, concreteValue)
-	default:
-		return encodeStringVariable(key, concreteValue)
+		HCLVariables = append(HCLVariables, v)
 	}
+	return HCLVariables
 }

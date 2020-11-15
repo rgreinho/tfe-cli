@@ -67,10 +67,8 @@ var variableCreateCmd = &cobra.Command{
 
 			// Convert the content to `key=value` format.
 			HCLVarFile := []string{}
-			iter := HCLvars.MapRange()
-			for iter.Next() {
-				encodedVar := tfecli.EncodeVariable(iter.Key(), iter.Value())
-				HCLVarFile = append(HCLVarFile, encodedVar)
+			for _, v := range HCLvars {
+				HCLVarFile = append(HCLVarFile, v.String())
 			}
 
 			// Add it to the list of variables to create.
