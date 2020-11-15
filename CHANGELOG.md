@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.2] - 2020-11-15
+
+### Fixed
+
+* Fix the var file parser to accept any type of HCL data. [#38]
+
 ## [1.4.1] - 2020-09-23
 
 ### Fixed
@@ -74,6 +80,7 @@ Initial version with support for managing:
 [1.3.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.3.0
 [1.4.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.0
 [1.4.1]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.1
+[1.4.2]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.2
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
@@ -88,3 +95,4 @@ Initial version with support for managing:
 [#32]: https://github.com/rgreinho/tfe-cli/pull/32
 [#34]: https://github.com/rgreinho/tfe-cli/pull/34
 [#37]: https://github.com/rgreinho/tfe-cli/pull/37
+[#38]: https://github.com/rgreinho/tfe-cli/pull/38
