@@ -38,7 +38,7 @@ jobs:
         run: |
           mkdir -p bin
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.24.0
-          echo "::add-path::$GITHUB_WORKSPACE/bin"
+          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
       - name: Run the linters
         run: |
           golangci-lint run \
