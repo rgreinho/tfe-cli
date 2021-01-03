@@ -56,13 +56,13 @@ func Setup(cmd *cobra.Command) (organization string, client *tfe.Client, err err
 	// Get organization.
 	organization, err = getOrganization(cmd)
 	if err != nil {
-		err = fmt.Errorf("no organization specified: %s", err)
+		return "", nil, fmt.Errorf("no organization specified: %s", err)
 	}
 
 	// Get token.
 	token, err := getToken(cmd)
 	if err != nil {
-		err = fmt.Errorf("no token specified: %s", err)
+		return "", nil, fmt.Errorf("no token specified: %s", err)
 	}
 
 	// Create the TFE client.
