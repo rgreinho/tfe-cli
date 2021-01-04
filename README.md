@@ -32,36 +32,9 @@ by setting the log level accordingly.
 
 Manage workspaces for an organization.
 
-```bash
-$ tfe-cli workspace
-Manage TFE workspaces.
-
-Usage:
-  tfe-cli workspace [command]
-
-Available Commands:
-  create      Create a TFE workspace
-  delete      Delete a TFE workspace
-  list        List TFE workspaces
-```
-
 #### Create
 
 Create a new TFE workspace.
-
-```bash
-Usage:
-  tfe-cli workspace create [WORKSPACE] [flags]
-
-Flags:
-      --autoapply                 Apply changes automatically
-      --filetriggers              Filter runs based on the changed files in a VCS push
-  -f, --force                     Update workspace if it exists
-  -h, --help                      help for create
-      --terraformversion string   Specify the Terraform version
-      --vcsrepository string      Specify a workspace's VCS repository
-      --workingdirectory string   Specify a relative path that Terraform will execute within
-```
 
 The format of the VCS option is string of colon sperated values: `<OAuthTokenID>:<repository>:<branch>`.
 
@@ -83,12 +56,7 @@ tfe-cli workspace create my-new-workspace --vcsrepository ot-8Xc1NTYpjIQZIwIh:or
 
 Delete an exisiting workspace.
 
-```bash
-Usage:
-  tfe-cli workspace delete [WORKSPACE]
-```
-
-#### Example
+##### Example
 
 ```bash
 tfe-cli workspace delete my-new-workspace
@@ -98,45 +66,17 @@ tfe-cli workspace delete my-new-workspace
 
 List existing workspaces in the organization.
 
+##### Example
+
 ```bash
-Usage:
-  tfe-cli workspace list
+tfe-cli workspace list
 ```
 
 ### Variables
 
 Manage variables for a workspace.
 
-```bash
-tfe-cli variable
-Manage TFE variables.
-
-Usage:
-  tfe-cli variable [command]
-
-Available Commands:
-  create      Create TFE variables
-  delete      Delete a TFE variable for a specific workspace
-  list        List TFE variables for a specific workspace
-```
-
 #### Create
-
-```bash
-Usage:
-  tfe-cli variable create [WORKSPACE] [flags]
-
-Flags:
-      --evar stringArray    Create an environment variable
-  -f, --force               Overwrite a variable if it exists
-  -h, --help                help for create
-      --hvar stringArray    Create an HCL variable
-      --sevar stringArray   Create a sensitive environment variable
-      --shvar stringArray   Create a sensitive HCL variable
-      --svar stringArray    Create a regular sensitive variable
-      --var stringArray     Create a regular variable
-      --var-file string     Create non-sensitive regular and HCL variables from a file
-```
 
 ##### Examples
 
@@ -152,7 +92,9 @@ Update an existing variable in a specific workspace:
 tfe-cli variable create my-exisiting-workspace -f --var akey=another_value
 ```
 
-When creating/updating variables, several of them of can be specified at the same time:
+When creating/updating variables, several of them of can be specified at the
+same time:
+
 ```bash
 tfe-cli variable create my-exisiting-workspace \
   --var akey=a_value \
@@ -163,14 +105,9 @@ tfe-cli variable create my-exisiting-workspace \
 
 #### Delete
 
-```bash
-Usage:
-  tfe-cli variable delete [WORKSPACE] [VARIABLE]
-```
+##### Example
 
-#### Example
-
-Delete variable:
+Delete a variable:
 
 ```bash
 tfe-cli variable delete my-workspace backend_port
@@ -180,15 +117,49 @@ tfe-cli variable delete my-workspace backend_port
 
 List exisitng variables for a specific workspace.
 
-```bash
-Usage:
-  tfe-cli variable list [WORKSPACE]
-```
-
-#### Example
+##### Example
 
 List variables:
 
 ```bash
 tfe-cli variable list my-workspace
+```
+
+### Notifications
+
+#### List
+
+List TFE notifications for a specific workspace.
+
+##### Example
+
+```bash
+tfe-cli notification list my-workspace
+```
+
+#### Create
+
+Creates or update a notification.
+
+##### Example
+
+Create a Slack notification for the `created` and `errored` events:
+
+```bash
+tfe-cli create my-workspace \
+  my-notification \
+  --type slack \
+  --url https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX \
+  --triggers run:created \
+  --triggers run:errored
+```
+
+#### Delete
+
+Deletes a notification by its name, in a specific workspace.
+
+##### Example
+
+```bash
+tfe-cli notification delete my-workspace my-notification
 ```

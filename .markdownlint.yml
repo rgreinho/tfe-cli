@@ -1,3 +1,6 @@
 # Disable some built-in rules.
 no-duplicate-header:
   allow_different_nesting: true
+line-length:
+  tables: false
+  code_blocks: false

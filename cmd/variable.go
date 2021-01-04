@@ -121,7 +121,7 @@ var variableListCmd = &cobra.Command{
 			log.Fatalf("Cannot execute the command: %s.", err)
 		}
 
-		// Retrieve the workspace exist.
+		// Retrieve the workspace if it exists.
 		workspace, err := readWorkspace(client, organization, name)
 		if err != nil {
 			log.Fatalf("Cannot retrieve workspace %q: %s.", name, err)
