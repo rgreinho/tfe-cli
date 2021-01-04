@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/go-slug v0.4.3 // indirect
 	github.com/hashicorp/go-tfe v0.10.1
 	github.com/magefile/mage v1.10.0
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
