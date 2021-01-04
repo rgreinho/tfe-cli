@@ -120,7 +120,7 @@ jobs:
           path: dist/
       - name: Get Changelog Entry
         id: changelog_reader
-        uses: mindsers/changelog-reader-action@v1.1.0
+        uses: mindsers/changelog-reader-action@v2
       - name: Publish the release
         uses: softprops/action-gh-release@v1
         env:
