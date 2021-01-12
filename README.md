@@ -146,7 +146,7 @@ Creates or update a notification.
 Create a Slack notification for the `created` and `errored` events:
 
 ```bash
-tfe-cli create my-workspace \
+tfe-cli notification create my-workspace \
   my-notification \
   --type slack \
   --url https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX \

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2021-01-12
+
+### Added
+
+* Add TFE notification support. [#40]
+
 ## [1.4.2] - 2020-11-15
 
 ### Fixed
@@ -81,6 +87,7 @@ Initial version with support for managing:
 [1.4.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.0
 [1.4.1]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.1
 [1.4.2]: https://github.com/rgreinho/tfe-cli/releases/tag/1.4.2
+[1.5.0]: https://github.com/rgreinho/tfe-cli/releases/tag/1.5.0
 
 [//]: # (Issue/PR links)
 [#14]: https://github.com/rgreinho/tfe-cli/pull/14
@@ -96,3 +103,4 @@ Initial version with support for managing:
 [#34]: https://github.com/rgreinho/tfe-cli/pull/34
 [#37]: https://github.com/rgreinho/tfe-cli/pull/37
 [#38]: https://github.com/rgreinho/tfe-cli/pull/38
+[#40]: https://github.com/rgreinho/tfe-cli/pull/40
