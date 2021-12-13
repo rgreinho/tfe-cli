@@ -3,7 +3,7 @@ module github.com/rgreinho/tfe-cli
 go 1.14
 
 require (
-	github.com/hashicorp/go-tfe v0.20.0
+	github.com/hashicorp/go-tfe v0.21.0
 	github.com/magefile/mage v1.11.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
