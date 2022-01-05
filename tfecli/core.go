@@ -38,9 +38,16 @@ func getToken(cmd *cobra.Command) (string, error) {
 
 // NewClient prepares a TFE client.
 func newClient(token string) (*tfe.Client, error) {
+
+	// Read the environment variable as a fallback.
+	Address := os.Getenv("TFE_ADDRESS")
+	BasePath := os.Getenv("TFE_BASEPATH")
+
 	// Prepare TFE config.
 	config := &tfe.Config{
 		Token: token,
+		Address: Address,
+		BasePath: BasePath,
 	}
 
 	// Create TFE client.
