@@ -18,9 +18,11 @@ For Windows, download the binary from the [release page](https://github.com/rgre
 * `TFE_ORG`: Terraform Enterprise organization
 * `TFE_LOG_LEVEL`: Logging level (valid values are `debug`, `info`, `warn`, `error`,
   `fatal`, `panic`)
+* `TFE_ADDRESS`: Terraform Enterprise API address
+* `TFE_BASEPATH`: Base path on which the Terraform Enterprise API is served.
 
-These values can also be specified on the command line. In this case, the environment
-variables are ignored.
+Some of these values can also be specified on the command line. In this case, the
+environment variables are ignored.
 
 ## Management commands
 
