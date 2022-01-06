@@ -45,8 +45,8 @@ func newClient(token string) (*tfe.Client, error) {
 
 	// Prepare TFE config.
 	config := &tfe.Config{
-		Token: token,
-		Address: Address,
+		Token:    token,
+		Address:  Address,
 		BasePath: BasePath,
 	}
 
