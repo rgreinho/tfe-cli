@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/hashicorp/go-hclog v1.0.0 // indirect
-	github.com/hashicorp/go-tfe v0.26.0
+	github.com/hashicorp/go-tfe v1.2.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/magefile/mage v1.13.0
 	github.com/mattn/go-colorable v0.1.12 // indirect
