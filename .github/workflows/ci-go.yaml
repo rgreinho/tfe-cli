@@ -74,7 +74,7 @@ jobs:
       - name: Setup the project
         run: go mod download
       - name: Run Mage
-        uses: crazy-max/ghaction-mage@v1
+        uses: crazy-max/ghaction-mage@v2
         with:
           version: latest
           args: dist
