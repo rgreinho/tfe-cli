@@ -4,7 +4,7 @@ set -euo pipefail
 # Prepare variables.
 PROJECT=tfe-cli
 REPO=rgreinho/${PROJECT}
-LATEST_TAG=$(git ls-remote --tags --refs --sort="v:refname" git://github.com/${REPO}.git | tail -n1 | sed 's/.*\///')
+LATEST_TAG=$(git ls-remote --tags --refs --sort="v:refname" https://github.com/${REPO}.git | tail -n1 | sed 's/.*\///')
 VERSION=${VERSION:-$LATEST_TAG}
 PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
 OPT_DIR="/usr/local/opt/${REPO}/${VERSION}"
