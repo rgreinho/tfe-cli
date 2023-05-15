@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-hclog v1.0.0 // indirect
 	github.com/hashicorp/go-tfe v0.26.0
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/magefile/mage v1.14.0
+	github.com/magefile/mage v1.15.0
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.7.0
